@@ -18,24 +18,22 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install requests pyyaml
+          pip install requests pyyaml pandas openpyxl
 
-      - name: Locate and Run AI Analysis
+      - name: Run Core AI Analysis
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           STOCK_LIST: ${{ secrets.STOCK_LIST }}
         run: |
-          echo "Scanning for primary launch files..."
-          if [ -f "main.py" ]; then
-            python main.py
-          elif [ -f "run.py" ]; then
-            python run.py
-          elif [ -d "tools" ] && [ -f "tools/analysis.py" ]; then
-            python tools/analysis.py
-          elif [ -d "algorithms" ]; then
-            echo "Running algorithm matrix analysis directly..."
-            python -m algorithms || echo "Alternative layout executed."
-          else
-            echo "Direct script execution fallback..."
-            python -c "import os, requests; print('Fallback communication established with core engine')"
-          fi
+          echo "Executing AI-Stock-Master Core Engine..."
+          python -m algorithms
+
+      - name: Upload Stock Analysis Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-ai-stock-report
+          path: |
+            output/
+            *.html
+            *.md
+          if-no-files-found: warn
